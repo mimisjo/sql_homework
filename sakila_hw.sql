@@ -150,21 +150,65 @@ FROM 	film f
 WHERE 	ca.name= 'Family';
 			
 -- 7e. Display the most frequently rented movies in descending order.
-
+SELECT		title, count(rental_id) as 'number of rentals'
+FROM		film f
+			INNER JOIN inventory i ON
+				f.film_id = i.film_id
+			INNER JOIN rental r ON
+				i.inventory_id = r.inventory_id
+GROUP BY	title
+ORDER BY	count(rental_id) DESC;
 
 -- 7f. Write a query to display how much business, in dollars, each store brought in.
-
+SELECT		store_id, sum(amount) as 'total revenue'
+FROM		payment p
+			INNER JOIN staff s ON
+				p.staff_id = s.staff_id
+GROUP BY	store_id;
 
 -- 7g. Write a query to display for each store its store ID, city, and country.
-
+SELECT		store_id, city, country
+FROM		store st
+			JOIN address a ON
+				st.address_id = a. address_id
+			JOIN city c ON
+				a.city_id = c.city_id
+			JOIN country co ON
+				c.country_id = co.country_id
+GROUP BY	store_id;
 
 -- 7h. List the top five genres in gross revenue in descending order. (Hint: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
-
+SELECT		name, sum(amount) as 'total revenue'
+FROM		category cat
+			JOIN film_category fc ON
+				cat.category_id = fc.category_id
+			JOIN inventory i ON
+				fc.film_id = i.film_id
+			JOIN rental r ON
+				i.inventory_id = r.inventory_id
+			JOIN payment p ON
+				r.rental_id = p.payment_id
+GROUP BY	name
+ORDER BY	sum(amount) DESC LIMIT 5;
 
 -- 8a. Use the solution from the problem above to create a view of the top 5 genres by gross revenue. 
-
+CREATE VIEW	top_grossing_genres as
+SELECT		name, sum(amount) as 'total revenue'
+FROM		category cat
+			JOIN film_category fc ON
+				cat.category_id = fc.category_id
+			JOIN inventory i ON
+				fc.film_id = i.film_id
+			JOIN rental r ON
+				i.inventory_id = r.inventory_id
+			JOIN payment p ON
+				r.rental_id = p.payment_id
+GROUP BY	name
+ORDER BY	sum(amount) DESC LIMIT 5;
 
 -- 8b. Display the view you created in 8a.
-
+SELECT 	*
+FROM	top_grossing_genres;
 
 -- 8c. Write a query to deletew the view top_five_genres
+DROP VIEW top_grossing_genres;
